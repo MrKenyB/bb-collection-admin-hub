@@ -5,16 +5,78 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { usePanel } from '@/hooks/usePanel';
+import {PacmanLoader} from 'react-spinners'
+import axios from 'axios'
+
+
+
 
 interface LoginPageProps {
   onLogin: () => void;
 }
 
 export const LoginPage = ({ onLogin }: LoginPageProps) => {
+  
+  axios.defaults.withCredentials = true
+  const [nom, setNom]  = useState('')
+  const [prenom, setPrenom]  = useState('')
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const { backendUrl } = usePanel()
+  const [login, setLogin] = useState<boolean>(true)
+
+  const singIn = async () => {
+    try {
+      
+      const res = await axios.post(`${backendUrl}/api/administrateur/login`, { password, email }) 
+      console.log('============= login =======================');
+      console.log(res.data);
+      console.log('====================================');
+
+      if (res.data.success) {
+        setIsLoading(false)
+        setEmail('')
+        setPassword('')
+
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue dans votre dashboard Syna-shop",
+        });
+        onLogin();
+      } else {
+        setIsLoading(false)
+        toast({
+          title: "Erreur de connexion",
+          description: res.data.message,
+          variant: "destructive",
+        });
+      }
+
+    } catch (err) {
+      console.log(err.message)
+      setIsLoading(false)
+      toast({
+        title: "Erreur",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  }
+
+
+  const signUp = async () => {
+    try {
+      const res = await axios.post(`${backendUrl}/api/administrateur/register`, { nom, prenom, email, password })
+      
+    } catch (err) {
+      console.log(err.message)
+      setIsLoading(false)
+    }
+  }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,22 +103,54 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md">
+      <Card className="w-full   max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4">
-            <span className="text-2xl font-bold text-white">BB</span>
+          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center m">
+            <span className="text-2xl font-bold text-white">SH</span>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">BB_COLLECTION</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-900">Syna-Shop</CardTitle>
           <CardDescription>Dashboard Administrateur</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
+            
+            {
+              !login && (
+                <div className="space-y-2">
+                  <Label htmlFor="Name">Nom</Label>
+                  <Input
+                    id="nom"
+                    type="text"
+                    placeholder="Ex: Makaya"
+                    value={nom}
+                    onChange={(e) => setNom(e.target.value)}
+                    required
+                  />
+                </div>
+              )
+            }
+            {
+              !login && (
+                <div className="space-y-2">
+                  <Label htmlFor="prenom">Prenom</Label>
+                  <Input
+                    id="prenom"
+                    type="text"
+                    placeholder="Ex: pauline"
+                    value={prenom}
+                    onChange={(e) => setPrenom(e.target.value)}
+                    required
+                  />
+                </div>
+              )
+            }
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@bb-collection.com"
+                placeholder="admin@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -73,18 +167,39 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
                 required
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              disabled={isLoading}
-            >
-              {isLoading ? "Connexion..." : "Se connecter"}
-            </Button>
+            <div>
+
+              {
+                isLoading ?
+                  <PacmanLoader />
+                  :
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    {login ? "Se connecter" : "Enregistrer"}
+                  </Button>
+              }
+              
+            </div>
           </form>
           <div className="mt-4 text-sm text-gray-600 text-center">
-            <p>Compte de démonstration :</p>
-            <p>Email: admin@bb-collection.com</p>
-            <p>Mot de passe: admin123</p>
+            {
+              login? 
+                (
+                  <div>
+                    <p>Vous n'avez pas de compte ? </p>
+                    <p className='text-blue-600 cursor-pointer font-bold' onClick={() => setLogin(false)}>Creer un compte</p>
+                  </div>
+                )
+              : 
+                (
+                  <div>
+                    <p>Vous avez deja un compte ? </p>
+                    <p className='text-blue-600 cursor-pointer font-bold' onClick={() => setLogin(true)}>se connecter</p>
+                  </div>
+                )
+            }
           </div>
         </CardContent>
       </Card>
