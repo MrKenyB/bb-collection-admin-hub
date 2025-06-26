@@ -9,7 +9,16 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/
 function Add() {
 
    const [image, setImage] = useState(null)
-   const [categorie, setCategorie] = useState('')
+   const [formData, setFormData] = useState({
+      nom: '',
+      prix: 0,
+      description: '',
+      categorie: '',
+      tailles: [],
+      isActive: false,
+      stock: 0
+   })
+
 
    return (
       <div>
@@ -78,7 +87,7 @@ function Add() {
                <Label htmlFor="Prix">Tailles</Label>
                <Input
                   type="text"
-                  placeholder="Ex : XL , L ou encore 21, 34, 56"
+                  placeholder="Exemple: XL , L ou encore 21, 34, 56"
                   required
                />
             </div>

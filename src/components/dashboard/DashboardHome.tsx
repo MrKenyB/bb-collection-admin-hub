@@ -1,7 +1,9 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, ShoppingCart, Users, CreditCard, TrendingUp, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import CountUp from 'react-countup';
+
+
 
 const statsData = [
   { name: 'Lun', ventes: 4000, commandes: 12 },
@@ -36,8 +38,8 @@ export const DashboardHome = () => {
             <Package className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">+12% ce mois</p>
+            <div className="text-2xl font-bold"> <CountUp end={1247} /> </div>
+            <p className="text-xs text-muted-foreground">+<CountUp end={12} />% ce mois</p>
           </CardContent>
         </Card>
         
@@ -47,8 +49,8 @@ export const DashboardHome = () => {
             <ShoppingCart className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">342</div>
-            <p className="text-xs text-muted-foreground">+8% ce mois</p>
+            <div className="text-2xl font-bold"><CountUp end={200} /></div>
+            <p className="text-xs text-muted-foreground">+<CountUp end={8} />% ce mois</p>
           </CardContent>
         </Card>
         
@@ -58,8 +60,8 @@ export const DashboardHome = () => {
             <Users className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2,847</div>
-            <p className="text-xs text-muted-foreground">+23% ce mois</p>
+            <div className="text-2xl font-bold"><CountUp end={2847}/></div>
+            <p className="text-xs text-muted-foreground">+<CountUp end={22}/>% ce mois</p>
           </CardContent>
         </Card>
         
@@ -69,8 +71,8 @@ export const DashboardHome = () => {
             <CreditCard className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€45,231</div>
-            <p className="text-xs text-muted-foreground">+15% ce mois</p>
+            <div className="text-2xl font-bold">€<CountUp end={45231}/> </div>
+            <p className="text-xs text-muted-foreground">+<CountUp end={14}/>% ce mois</p>
           </CardContent>
         </Card>
       </div>

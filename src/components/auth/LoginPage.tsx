@@ -26,10 +26,9 @@ export const LoginPage = () => {
   const signIn = async () => {
     try {
       const res = await axios.post(`${backendUrl}/api/administrateur/login`, { password, email });
-
-      console.log('================ connnexion ====================');
-      console.log(res.data);
-      console.log('====================================');
+      // console.log('================ connnexion ====================');
+      // console.log(res.data);
+      // console.log('====================================');
 
       if (res.data.success) {
         setIsLoading(false);
