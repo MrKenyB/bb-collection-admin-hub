@@ -10,14 +10,16 @@ import { PaymentsPage } from '@/components/dashboard/PaymentsPage';
 import { StatisticsPage } from '@/components/dashboard/StatisticsPage';
 import { ProfilePage } from '@/components/dashboard/ProfilePage';
 import { LoginPage } from '@/components/auth/LoginPage';
+import { usePanel } from '@/hooks/usePanel';
+import Add from '@/components/dashboard/Add';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('home');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const {isLoggedIn, setIsLoggedIn} = usePanel()
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   if (!isLoggedIn) {
-    return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
+    return <LoginPage/>;
   }
 
   const renderCurrentPage = () => {
@@ -36,26 +38,29 @@ const Index = () => {
         return <StatisticsPage />;
       case 'profile':
         return <ProfilePage />;
+      case 'ajouter':
+        return <Add/>
       default:
         return <DashboardHome />;
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className=" flex h-screen bg-gray-50">
+
       <Sidebar 
         currentPage={currentPage} 
         setCurrentPage={setCurrentPage}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
       />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className=" flex-1 flex flex-col overflow-hidden">
         <Header 
-          onLogout={() => setIsLoggedIn(false)}
           toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-          {renderCurrentPage()}
+
+        <main className=" flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+          {renderCurrentPage()}          
         </main>
       </div>
     </div>

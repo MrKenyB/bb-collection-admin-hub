@@ -7,13 +7,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import axios from 'axios';
+import { usePanel } from '@/hooks/usePanel';
 
 interface HeaderProps {
-  onLogout: () => void;
   toggleSidebar: () => void;
 }
 
-export const Header = ({ onLogout, toggleSidebar }: HeaderProps) => {
+export const Header = ({ toggleSidebar }: HeaderProps) => {
+
+  const {backendUrl, setIsLoggedIn} = usePanel()
+  
+  const logout = async() =>{
+    try {
+      const res = await axios.post(`${backendUrl}/api/administrateur/logout`, {});
+      
+      console.log('==============  deconnexion =========');
+      console.log(res.data);
+      console.log('====================================');
+
+      if (res.data.success) {
+        setIsLoggedIn(false)
+      }
+    } catch(err){
+      console.log(err.message)
+    }
+  }
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 h-16 flex items-center justify-between px-6">
       <div className="flex items-center space-x-4">
@@ -28,7 +47,7 @@ export const Header = ({ onLogout, toggleSidebar }: HeaderProps) => {
         
         <div>
           <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500">Gérez votre boutique BB_COLLECTION</p>
+          <p className="text-sm text-gray-500">Gérez votre boutique Syna-shop</p>
         </div>
       </div>
       
@@ -48,7 +67,7 @@ export const Header = ({ onLogout, toggleSidebar }: HeaderProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={onLogout} className="text-red-600">
+            <DropdownMenuItem onClick={logout} className="text-red-600">
               <LogOut className="mr-2 h-4 w-4" />
               Déconnexion
             </DropdownMenuItem>

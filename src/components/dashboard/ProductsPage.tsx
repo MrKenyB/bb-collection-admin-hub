@@ -75,7 +75,13 @@ export const ProductsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Nouveau produit
+      <div className="h-[100vh] w-full fixed inset-0 z-40 flex items-center justify-center bg-black/55">
+        <div className="w-[90%] h-[90%] bg-white rounded-lg shadow-lg overflow-hidden">
+        </div>
+      </div> */}
+
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold text-gray-900">Gestion des produits</h2>
@@ -86,6 +92,7 @@ export const ProductsPage = () => {
           Nouveau produit
         </Button>
       </div>
+
 
       {/* Filters */}
       <Card>

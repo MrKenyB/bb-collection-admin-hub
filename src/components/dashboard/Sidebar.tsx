@@ -1,4 +1,3 @@
-
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { 
@@ -10,7 +9,8 @@ import {
   BarChart3, 
   Settings,
   Menu,
-  X
+  X,
+  Plus
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,6 +22,7 @@ interface SidebarProps {
 
 const menuItems = [
   { id: 'home', label: 'Accueil', icon: Home },
+  { id: 'ajouter', label: 'Ajouter', icon: Plus },
   { id: 'products', label: 'Produits', icon: Package },
   { id: 'orders', label: 'Commandes', icon: ShoppingCart },
   { id: 'customers', label: 'Clients', icon: Users },
@@ -51,7 +52,7 @@ export const Sidebar = ({ currentPage, setCurrentPage, isOpen, setIsOpen }: Side
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-sm font-bold text-white">BB</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">BB_COLLECTION</span>
+            <span className="text-xl font-bold text-gray-900">Syna-shop</span>
           </div>
           <Button
             variant="ghost"

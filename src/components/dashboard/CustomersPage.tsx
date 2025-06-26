@@ -89,7 +89,7 @@ export const CustomersPage = () => {
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold text-gray-900">Gestion des clients</h2>
-        <p className="text-gray-600">Gérez votre base de clients BB_COLLECTION</p>
+        <p className="text-gray-600">Gérez votre base de clients Syna-shop</p>
       </div>
 
       {/* Stats Cards */}

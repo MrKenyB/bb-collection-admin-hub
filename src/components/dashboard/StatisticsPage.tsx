@@ -32,7 +32,7 @@ export const StatisticsPage = () => {
     <div className="space-y-6">
       <div>
         <h2 className="text-3xl font-bold text-gray-900">Statistiques & Rapports</h2>
-        <p className="text-gray-600">Analysez les performances de votre boutique BB_COLLECTION</p>
+        <p className="text-gray-600">Analysez les performances de votre boutique Syna-shop</p>
       </div>
 
       {/* KPI Cards */}

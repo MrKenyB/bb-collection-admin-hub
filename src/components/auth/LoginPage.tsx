@@ -1,4 +1,4 @@
-
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,97 +8,104 @@ import { useToast } from '@/hooks/use-toast';
 import { usePanel } from '@/hooks/usePanel';
 import {PacmanLoader} from 'react-spinners'
 import axios from 'axios'
+import { sign } from 'crypto';
+axios.defaults.withCredentials = true;
 
 
 
-
-interface LoginPageProps {
-  onLogin: () => void;
-}
-
-export const LoginPage = ({ onLogin }: LoginPageProps) => {
-  
-  axios.defaults.withCredentials = true
-  const [nom, setNom]  = useState('')
-  const [prenom, setPrenom]  = useState('')
+export const LoginPage = () => {
+  const [nom, setNom] = useState('');
+  const [prenom, setPrenom] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { backendUrl, setIsLoggedIn } = usePanel();
+  const [login, setLogin] = useState<boolean>(true);
 
-  const { backendUrl } = usePanel()
-  const [login, setLogin] = useState<boolean>(true)
-
-  const singIn = async () => {
+  const signIn = async () => {
     try {
-      
-      const res = await axios.post(`${backendUrl}/api/administrateur/login`, { password, email }) 
-      console.log('============= login =======================');
+      const res = await axios.post(`${backendUrl}/api/administrateur/login`, { password, email });
+
+      console.log('================ connnexion ====================');
       console.log(res.data);
       console.log('====================================');
 
       if (res.data.success) {
-        setIsLoading(false)
-        setEmail('')
-        setPassword('')
-
+        setIsLoading(false);
+        setEmail('');
+        setPassword('');
         toast({
-          title: "Connexion réussie",
-          description: "Bienvenue dans votre dashboard Syna-shop",
+          title: 'Connexion réussie',
+          description: 'Bienvenue dans votre dashboard Syna-shop',
         });
-        onLogin();
+        setIsLoggedIn(true);
       } else {
-        setIsLoading(false)
+        setIsLoading(false);
         toast({
-          title: "Erreur de connexion",
+          title: 'Erreur de connexion',
           description: res.data.message,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
-
     } catch (err) {
-      console.log(err.message)
-      setIsLoading(false)
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.message || err.message
+        : 'Erreur inconnue';
+      setIsLoading(false);
       toast({
-        title: "Erreur",
-        description: err.message,
-        variant: "destructive",
+        title: 'Erreur',
+        description: message,
+        variant: 'destructive',
       });
     }
-  }
-
+  };
 
   const signUp = async () => {
     try {
-      const res = await axios.post(`${backendUrl}/api/administrateur/register`, { nom, prenom, email, password })
-      
+      const res = await axios.post(`${backendUrl}/api/administrateur/register`, {
+        nom,
+        prenom,
+        email,
+        password,
+      });
+
+      console.log('================ creation de compte ====================');
+      console.log(res.data);
+      console.log('====================================');
+
+      if (res.data.success) {
+        setIsLoading(false);
+        setNom('');
+        setPrenom('');
+        setEmail('');
+        setPassword('');
+        toast({
+          title: 'Inscription réussie',
+          description: 'Votre compte a été créé avec succès.',
+        });
+        setLogin(true);
+      } else {
+        setLogin(false);
+        setIsLoading(false);
+      }
     } catch (err) {
-      console.log(err.message)
-      setIsLoading(false)
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.message || err.message
+        : 'Erreur inconnue';
+      setIsLoading(false);
+      toast({
+        title: 'Erreur',
+        description: message,
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulation d'authentification
-    setTimeout(() => {
-      if (email === 'admin@bb-collection.com' && password === 'admin123') {
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue dans votre dashboard BB_COLLECTION",
-        });
-        onLogin();
-      } else {
-        toast({
-          title: "Erreur de connexion",
-          description: "Email ou mot de passe incorrect",
-          variant: "destructive",
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    login ? signIn() : signUp();
   };
 
   return (
@@ -167,7 +174,7 @@ export const LoginPage = ({ onLogin }: LoginPageProps) => {
                 required
               />
             </div>
-            <div>
+            <div className='w-full flex items-center justify-center'>
 
               {
                 isLoading ?
