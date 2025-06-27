@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import axios from 'axios'
 import {
   Table,
   TableBody,
@@ -20,51 +21,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { usePanel } from '@/hooks/usePanel';
 
-const mockProducts = [
-  {
-    id: 1,
-    name: 'Robe d\'été fleurie',
-    category: 'Robes',
-    price: 89.99,
-    stock: 15,
-    status: 'Disponible',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=100&h=100&fit=crop'
-  },
-  {
-    id: 2,
-    name: 'Chemisier blanc élégant',
-    category: 'Hauts',
-    price: 65.50,
-    stock: 8,
-    status: 'Stock faible',
-    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=100&h=100&fit=crop'
-  },
-  {
-    id: 3,
-    name: 'Pantalon taille haute',
-    category: 'Pantalons',
-    price: 95.00,
-    stock: 0,
-    status: 'Rupture',
-    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=100&h=100&fit=crop'
-  },
-  {
-    id: 4,
-    name: 'Blazer noir classique',
-    category: 'Vestes',
-    price: 129.99,
-    stock: 22,
-    status: 'Disponible',
-    image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=100&h=100&fit=crop'
-  },
-];
+
+
 
 export const ProductsPage = () => {
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [articles, setArticles] = useState([])
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast();
+  const {backendUrl} = usePanel()
 
-  const getStatusBadge = (status: string, stock: number) => {
+
+
+  const getStatusBadge = (stock: number) => {
     if (stock === 0) {
       return <Badge variant="destructive">Rupture</Badge>;
     } else if (stock < 10) {
@@ -74,14 +48,39 @@ export const ProductsPage = () => {
     }
   };
 
+  const getarticles = async() => {
+    try {
+      setLoading(true)
+      const res = await axios.get(`${backendUrl}/api/article/articles`)
+      
+      console.log('====================================');
+      console.log(res.data);
+      console.log('====================================');
+
+      if (res.data.success) {
+        setLoading(false)
+        setArticles(res.data.articles.reverse())
+      }
+
+    } catch (error) {
+      setLoading(false)
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      toast({
+          title: 'Erreur',
+          description: error.message || 'Une erreur est survenue',
+          variant: 'destructive',
+      });
+    }
+  }
+
+  useEffect(() => {
+    getarticles()
+  }, [])
+  
   return (
     <div className="space-y-6 relative">
-      {/* Nouveau produit
-      <div className="h-[100vh] w-full fixed inset-0 z-40 flex items-center justify-center bg-black/55">
-        <div className="w-[90%] h-[90%] bg-white rounded-lg shadow-lg overflow-hidden">
-        </div>
-      </div> */}
-
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-3xl font-bold text-gray-900">Gestion des produits</h2>
@@ -115,10 +114,11 @@ export const ProductsPage = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les catégories</SelectItem>
-                <SelectItem value="robes">Robes</SelectItem>
-                <SelectItem value="hauts">Hauts</SelectItem>
-                <SelectItem value="pantalons">Pantalons</SelectItem>
-                <SelectItem value="vestes">Vestes</SelectItem>
+                {
+                  articles.map((item, ind) => (
+                    <SelectItem key={ind} value={ item.categorie}>{item.categorie}</SelectItem>
+                  ))
+                }
               </SelectContent>
             </Select>
           </div>
@@ -130,7 +130,7 @@ export const ProductsPage = () => {
         <CardHeader>
           <CardTitle>Liste des produits</CardTitle>
           <CardDescription>
-            {mockProducts.length} produits au total
+            {articles?.length} produits au total
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -146,25 +146,25 @@ export const ProductsPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockProducts.map((product) => (
+              {articles.map((product) => (
                 <TableRow key={product.id} className="hover:bg-gray-50">
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       <img
                         src={product.image}
-                        alt={product.name}
+                        alt={product.nom}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                       <div>
-                        <div className="font-medium">{product.name}</div>
-                        <div className="text-sm text-gray-500">ID: {product.id}</div>
+                        <div className="font-medium">{product.nom}</div>
+                        {/* <div className="text-sm text-gray-500">ID: {product.id}</div> */}
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell className="font-medium">€{product.price}</TableCell>
+                  <TableCell>{product.categorie}</TableCell>
+                  <TableCell className="font-medium">{product.prix} F</TableCell>
                   <TableCell>{product.stock}</TableCell>
-                  <TableCell>{getStatusBadge(product.status, product.stock)}</TableCell>
+                  <TableCell>{getStatusBadge(product.stock)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
                       <Button variant="ghost" size="sm">
