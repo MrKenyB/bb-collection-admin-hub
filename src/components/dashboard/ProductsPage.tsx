@@ -151,7 +151,7 @@ export const ProductsPage = () => {
                   <TableCell>
                     <div className="flex items-center space-x-3">
                       <img
-                        src={product.image}
+                        src={product.image[0]}
                         alt={product.nom}
                         className="w-12 h-12 rounded-lg object-cover"
                       />

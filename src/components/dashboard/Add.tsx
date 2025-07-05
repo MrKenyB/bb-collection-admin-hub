@@ -8,7 +8,10 @@ import axios from 'axios';
 import { usePanel } from '@/hooks/usePanel';
 
 function Add() {
-   const [image, setImage] = useState<File | null>(null);
+   const [image1, setImage1] = useState<File | null>(null);
+   const [image2, setImage2] = useState<File | null>(null);
+   const [image3, setImage3] = useState<File | null>(null);
+   const [image4, setImage4] = useState<File | null>(null);
    const [taille, setTaille] = useState('');
    const [loading, setLoading] = useState(false)
    const { toast } = useToast();
@@ -17,8 +20,10 @@ function Add() {
    const [formData, setFormData] = useState({
       nom: '',
       prix: 0,
+      fakePrix: 0,
       description: '',
       categorie: '',
+      sexe:"",
       tailles: [],
       isActive: true,
       stock: 0
@@ -26,9 +31,10 @@ function Add() {
 
    const handleChange = (e) => {
       const { name, value } = e.target;
+      const numberFields = ['prix', 'stock', 'fakePrix'];
       setFormData((prev) => ({
          ...prev,
-         [name]: name === 'prix' || name === 'stock' ? Number(value) : value,
+         [name]: numberFields.includes(name) ? Number(value) : value,
       }));
    };
 
@@ -65,7 +71,7 @@ function Add() {
       e.preventDefault()
       setLoading(true)
 
-      if (!image) {
+      if (!image1) {
    
          toast({
             title: 'Image',
@@ -75,16 +81,32 @@ function Add() {
          return;
       }
 
+      if (!formData.nom || !formData.categorie || !formData.sexe || !formData.tailles.length) {
+         toast({
+            title: 'Champs manquants',
+            description: 'Veuillez remplir tous les champs requis.',
+            variant: 'destructive',
+         });
+         setLoading(false);
+         return;
+      }
+
+      
       try {
          const data = new FormData();
 
-         data.append("image", image);                            
+         data.append("image1", image1);                            
+         data.append("image2", image2);                            
+         data.append("image3", image3);                            
+         data.append("image4", image4);                            
          data.append("nom", formData.nom);
          data.append("prix", JSON.stringify(formData.prix));     
+         data.append("fakePrix", JSON.stringify(formData.fakePrix));     
          data.append("stock", JSON.stringify(formData.stock));   
          data.append("isActive", JSON.stringify(formData.isActive)); 
          data.append("description", formData.description);
          data.append("categorie", formData.categorie);
+         data.append("sexe", formData.sexe);
 
          // tableau des tailles
          formData.tailles.forEach((taille, index) => {
@@ -101,14 +123,19 @@ function Add() {
             setFormData({
                nom: '',
                prix: 0,
+               fakePrix: 0,
                description: '',
                categorie: '',
+               sexe: '',
                tailles: [],
                isActive: true,
                stock: 0
             });
 
-            setImage(null)
+            setImage1(null)
+            setImage2(null)
+            setImage3(null)
+            setImage4(null)
          }
       } catch (err) {
          setLoading(false)
@@ -127,20 +154,71 @@ function Add() {
    return (
       <div>
          <form onSubmit={enregistrer} className="w-full flex flex-col items-center justify-center gap-6">
-            <label htmlFor="image" className="w-[200px] h-[200px] cursor-pointer overflow-hidden rounded-md">
-               <img
-                  className="w-full h-full object-cover"
-                  src={!image ? assets.uploadArea : URL.createObjectURL(image)}
-                  alt="utilisateur"
-               />
-               <input
-                  onChange={(e) => setImage(e.target.files[0])}
-                  type="file"
-                  id="image"
-                  name="image"
-                  hidden
-               />
-            </label>
+            
+            <div className='grid grid-cols-4 gap-6'>
+
+               <label htmlFor="image1" className="w-[100px] h-[100px] cursor-pointer overflow-hidden rounded-md">
+                  <img
+                     className="w-full h-full object-cover"
+                     src={!image1 ? assets.uploadArea : URL.createObjectURL(image1)}
+                     alt="utilisateur"
+                  />
+                  <input
+                     onChange={(e) => setImage1(e.target.files[0])}
+                     type="file"
+                     id="image1"
+                     name="image1"
+                     hidden
+                  />
+               </label>
+               
+
+               <label htmlFor="image2" className="w-[100px] h-[100px] cursor-pointer overflow-hidden rounded-md">
+                  <img
+                     className="w-full h-full object-cover"
+                     src={!image2 ? assets.uploadArea : URL.createObjectURL(image2)}
+                     alt="utilisateur"
+                  />
+                  <input
+                     onChange={(e) => setImage2(e.target.files[0])}
+                     type="file"
+                     id="image2"
+                     name="image2"
+                     hidden
+                  />
+               </label>
+
+               <label htmlFor="image3" className="w-[100px] h-[100px] cursor-pointer overflow-hidden rounded-md">
+                  <img
+                     className="w-full h-full object-cover"
+                     src={!image3 ? assets.uploadArea : URL.createObjectURL(image3)}
+                     alt="utilisateur"
+                  />
+                  <input
+                     onChange={(e) => setImage3(e.target.files[0])}
+                     type="file"
+                     id="image3"
+                     name="image3"
+                     hidden
+                  />
+               </label>
+
+               <label htmlFor="image4" className="w-[100px] h-[100px] cursor-pointer overflow-hidden rounded-md">
+                  <img
+                     className="w-full h-full object-cover"
+                     src={!image4 ? assets.uploadArea : URL.createObjectURL(image4)}
+                     alt="utilisateur"
+                  />
+                  <input
+                     onChange={(e) => setImage4(e.target.files[0])}
+                     type="file"
+                     id="image4"
+                     name="image4"
+                     hidden
+                  />
+               </label>
+
+            </div>
 
             <div className="w-full flex items-center justify-between gap-4">
                <div className="w-[90%]">
@@ -171,6 +249,18 @@ function Add() {
 
             <div className="w-full flex items-center justify-between gap-4">
                <div className="w-[90%]">
+                  <Label htmlFor="description">Au lieu de : </Label>
+                  <Input
+                     id="fakePrix"
+                     name="fakePrix"
+                     type="number"
+                     value={formData.fakePrix}
+                     onChange={handleChange}
+                     placeholder="Prix barré"
+                     required
+                  />
+               </div>
+               <div className="w-[90%]">
                   <Label htmlFor="description">Description</Label>
                   <Input
                      id="description"
@@ -181,6 +271,23 @@ function Add() {
                      placeholder="Description en une ligne"
                      required
                   />
+               </div>
+            </div>
+
+            <div className="w-full flex items-center justify-between gap-4">
+            <div className="w-[90%]">
+                  <Label htmlFor="categorie">Sexe</Label>
+                  <select
+                     id="sexe"
+                     name="sexe"
+                     value={formData.sexe}
+                     onChange={handleChange}
+                     className="flex h-10 w-full cursor-pointer rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                  >
+                     <option value="" disabled hidden>Choisir un sexe</option>
+                     <option value="homme">Masculin</option>
+                     <option value="femme">Feminin</option>
+                  </select>
                </div>
                <div className="w-[90%]">
                   <Label htmlFor="categorie">Catégorie</Label>
@@ -194,8 +301,7 @@ function Add() {
                      <option value="" disabled hidden>Choisir une catégorie</option>
                      <option value="vetement">Vêtement</option>
                      <option value="chaussure">Chaussure</option>
-                     <option value="accessoire">Accessoire</option>
-                     <option value="autre">Autre</option>
+                     <option value="accessoire">Sac</option>
                   </select>
                </div>
             </div>
@@ -222,7 +328,7 @@ function Add() {
                               <button
                                  type="button"
                                  onClick={() => supprimerTaille(idx)}
-                                 className="text-[.5rem] font-normal text-red-700 hover:text-red-800 font-bold"
+                                 className="text-[.5rem]  text-red-700 hover:text-red-800 font-bold"
                               >
                                  ✕
                               </button>
