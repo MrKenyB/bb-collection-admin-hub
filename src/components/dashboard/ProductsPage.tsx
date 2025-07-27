@@ -21,19 +21,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
 import { usePanel } from '@/hooks/usePanel';
-
+import {toast} from "react-toastify"
+import { PropagateLoader } from 'react-spinners';
 
 
 
 export const ProductsPage = () => {
   
+  axios.defaults.withCredentials = true
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(false)
-  const { toast } = useToast();
+  const [isDoing, setIsDoing] = useState(false)
   const {backendUrl} = usePanel()
 
 
@@ -67,11 +68,28 @@ export const ProductsPage = () => {
       console.log('====================================');
       console.log(error);
       console.log('====================================');
-      toast({
-          title: 'Erreur',
-          description: error.message || 'Une erreur est survenue',
-          variant: 'destructive',
-      });
+    }
+  }
+
+  const bin = async(id:string) => {
+    try {
+      setIsDoing(true)
+      const res = await axios.delete(`${backendUrl}/api/article/remove/${id}`)
+      console.log('====================================');
+      console.log(res.data);
+      console.log('====================================');
+
+      if (res.data.success) {
+        toast.success(res.data.message)
+        setIsDoing(false)
+        getarticles()
+      }
+    } catch (error) {
+      setIsDoing(false)
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      toast.error(error.message );
     }
   }
 
@@ -125,65 +143,79 @@ export const ProductsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Products Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Liste des produits</CardTitle>
-          <CardDescription>
-            {articles?.length} produits au total
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Produit</TableHead>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Prix</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {articles.map((product) => (
-                <TableRow key={product.id} className="hover:bg-gray-50">
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={product.image[0]}
-                        alt={product.nom}
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                      <div>
-                        <div className="font-medium">{product.nom}</div>
-                        {/* <div className="text-sm text-gray-500">ID: {product.id}</div> */}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{product.categorie}</TableCell>
-                  <TableCell className="font-medium">{product.prix} F</TableCell>
-                  <TableCell>{product.stock}</TableCell>
-                  <TableCell>{getStatusBadge(product.stock)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {
+        articles?.length <= 0 ?
+          (
+            <div className='w-full h-[40vh] rounded-md bg-gray-200 flex justify-center items-center'>
+              le tableau est vide
+            </div>
+          ) 
+          :
+          (
+          <Card>
+            <CardHeader>
+              <CardTitle>Liste des produits</CardTitle>
+              <CardDescription>
+                {articles?.length} produits au total
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Produit</TableHead>
+                    <TableHead>Catégorie</TableHead>
+                    <TableHead>Prix</TableHead>
+                    <TableHead>Stock</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {articles.map((product) => (
+                    <TableRow key={product._id} className="hover:bg-gray-50">
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={product.image[0]}
+                            alt={product.nom}
+                            className="w-12 h-12 rounded-lg object-cover"
+                          />
+                          <div>
+                            <div className="font-medium">{product.nom}</div>
+                            {/* <div className="text-sm text-gray-500">ID: {product.id}</div> */}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{product.categorie}</TableCell>
+                      <TableCell className="font-medium">{product.prix} F</TableCell>
+                      <TableCell>{product.stock}</TableCell>
+                      <TableCell>{getStatusBadge(product.stock)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button onClick={() => bin(product._id)} variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
+                            
+                            {
+                              isDoing? <PropagateLoader size={9}/> : <Trash2 className="h-4 w-4" />
+                            }
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+          )
+      }
+      
     </div>
   );
 };

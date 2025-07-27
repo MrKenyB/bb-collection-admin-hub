@@ -13,20 +13,22 @@ function Add() {
    const [image3, setImage3] = useState<File | null>(null);
    const [image4, setImage4] = useState<File | null>(null);
    const [taille, setTaille] = useState('');
+   const [caracteristique, setCaracteristique] = useState('');
    const [loading, setLoading] = useState(false)
    const { toast } = useToast();
    const {backendUrl} = usePanel()
 
    const [formData, setFormData] = useState({
       nom: '',
-      prix: 0,
-      fakePrix: 0,
+      prix: '',
+      fakePrix: '',
       description: '',
       categorie: '',
       sexe:"",
       tailles: [],
+      caracteristiques: [],
       isActive: true,
-      stock: 0
+      stock: ''
    });
 
    const handleChange = (e) => {
@@ -46,6 +48,7 @@ function Add() {
       }));
    };
 
+   // tailles
    const ajouterTaille = (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
          e.preventDefault();
@@ -59,10 +62,30 @@ function Add() {
       }
    };
 
+   // caracteristiques
+   const ajouterCaracteristique = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+         e.preventDefault();
+         if (caracteristique.trim() !== '') {
+            setFormData((prev) => ({
+               ...prev,
+               caracteristiques: [...prev.caracteristiques, caracteristique.trim()],
+            }));
+            setCaracteristique('');
+         }
+      }
+   };
+
    const supprimerTaille = (index: number) => {
       setFormData((prev) => ({
          ...prev,
          tailles: prev.tailles.filter((_, i) => i !== index),
+      }));
+   };
+   const supprimerCaracteristique = (index: number) => {
+      setFormData((prev) => ({
+         ...prev,
+         caracteristiques: prev.caracteristiques.filter((_, i) => i !== index),
       }));
    };
    
@@ -113,6 +136,12 @@ function Add() {
             data.append(`tailles[${index}]`, taille);
          });
          
+
+         // tableau des caracteristiques
+         formData.caracteristiques.forEach((caracteristique, index) => {
+            data.append(`caracteristiques[${index}]`, caracteristique);
+         });
+         
          const res = await axios.post(`${backendUrl}/api/article/add`, data)
          console.log('====================================');
          console.log(res.data);
@@ -122,14 +151,15 @@ function Add() {
             setLoading(false)
             setFormData({
                nom: '',
-               prix: 0,
-               fakePrix: 0,
+               prix: '',
+               fakePrix: '',
                description: '',
                categorie: '',
                sexe: '',
                tailles: [],
+               caracteristiques : [],
                isActive: true,
-               stock: 0
+               stock: ''
             });
 
             setImage1(null)
@@ -301,7 +331,7 @@ function Add() {
                      <option value="" disabled hidden>Choisir une catégorie</option>
                      <option value="vetement">Vêtement</option>
                      <option value="chaussure">Chaussure</option>
-                     <option value="accessoire">Sac</option>
+                     <option value="sac">Sac</option>
                   </select>
                </div>
             </div>
@@ -364,6 +394,39 @@ function Add() {
                      required
                   />
                </div>
+            </div>
+
+            <div className="w-full">
+               <Label className='mb-1' htmlFor="caracteristique">Caracteristiques</Label>
+               <Input
+                  id="caracteristique"
+                  type="text"
+                  placeholder="Exemple: tres resistant(e)"
+                  value={caracteristique}
+                  onChange={(e) => setCaracteristique(e.target.value)}
+                  onKeyDown={ajouterCaracteristique}
+               />
+               {formData.caracteristiques.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-4">
+                     {formData.caracteristiques.map((t, idx) => (
+                        <span
+                           key={idx}
+                           className="bg-gray-200 px-2 py-1 rounded flex items-center gap-1"
+                        >
+                           {t}
+                           <sup className = "px-1.5 py-2 rounded-full bg-red-600/15">
+                              <button
+                                 type="button"
+                                 onClick={() => supprimerCaracteristique(idx)}
+                                 className="text-[.5rem]  text-red-700 hover:text-red-800 font-bold"
+                              >
+                                 ✕
+                              </button>
+                           </sup>
+                        </span>
+                     ))}
+                  </div>
+               )}
             </div>
 
             <div className="w-full text-white font-bold flex items-center justify-center my-[2rem]">
